@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import AddIcon from '../images/add-icon.png'
+import AddIcon from '../images/add-icon.png';
+import { Table, Container, Form, Row, Col, Input, InputGroup } from 'react-bootstrap';
 
 export default function Calculator() {
     const [rows, setRows] = useState([]);
@@ -12,107 +13,157 @@ export default function Calculator() {
     const addNewRow = (e) => {
         e.preventDefault();
 
-        const nRow = {pname: newRow.pname, price: newRow.price};
+        const nRow = { pname: newRow.pname, price: newRow.price };
         setRows([...rows, nRow]);
         setNewRow({ pname: "", price: 0 });
     }
 
+    const removeRow = () => {
+        setRows(rows.slice(0, -1));
+    }
+
+    const editRow = (newName, newPrice, index) => {
+        let newEl = { pname: newName, price: newPrice };
+        let redidRows = rows;
+        redidRows.splice(index, 1, newEl)
+        setRows(redidRows)
+    }
+
     function RenderTotal() {
         let additionalFees = parseFloat((tax + serviceFee + deliveryFee + tip) / rows.length);
-        console.log(additionalFees);
+        let total = 0;
         return (
-            <div>
-                {rows?.map((row, index) => {
-                    var totalPrice = parseFloat(row.price) + parseFloat(additionalFees);
-                    return(<div>
-                        <h1>{row.pname}</h1>
-                        <h1>{totalPrice.toFixed(2)}</h1>
-                    </div>)
-                })}
-            </div>
+            <Container>
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Owes</th>
+                        </tr>
+                    </thead>
+                    {rows?.map((row) => {
+                        var totalPrice = parseFloat(row.price) + parseFloat(additionalFees);
+                        total += totalPrice;
+                        return (<tr>
+                            <td>{row.pname}</td>
+                            <td>{totalPrice.toFixed(2)}</td>
+                        </tr>)
+                    })}
+                    <tfoot>Total: ${total}</tfoot>
+                </Table>
+            </Container>
         )
     }
 
     return (
         <div id="calculator-page">
-            <table id="people">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {rows?.map((row, index) => {
-                        console.log("Here");
-                        return(<tr>
-                            <td>{row.pname}</td>
-                            <td>{row.price}</td>
-                        </tr>)
-                    })}
-                </tbody>
-            </table>
-            <h2>Add Someone</h2>
-            <form>
-                <label>Name</label>
-                <input
-                    type="text"
-                    name="name"
-                    value={newRow.pname}
-                    required="required"
-                    onChange={e => { setNewRow({ pname: e.target.value, price: newRow.price }) }} />
-                <label>Price</label>
-                <input
-                    type="number"
-                    name="price"
-                    value={newRow.price}
-                    required="required"
-                    onChange={e => { setNewRow({ pname: newRow.pname, price: e.target.value }) }} />
-                <button onClick={addNewRow}>Add Name</button>
-            </form>
+            <Container>
+                <Table striped bordered hover>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows?.map(row => {
+                            return (<tr>
+                                <td>
+                                    <Form.Control
+                                        type="text"
+                                        name="name"
+                                        id="name"
+                                        value={row.pname}
+                                        required="required"
+                                        onChange={(e) => { console.log(e.target.value); editRow(e.target.value, row.price, rows.indexOf(row)) }} />
+                                </td>
+                                <td>
+                                    <Form.Control
+                                        type="number"
+                                        name="price"
+                                        id="price"
+                                        value={row.price}
+                                        required="required"
+                                        onChange={(e) => { editRow(row.name, e.target.value, rows.indexOf(row)) }} />
+                                </td>
+                            </tr>)
+                        })}
+                        <tr>
+                            <td>
+                                <Form.Control
+                                    type="text"
+                                    name="name"
+                                    id="name"
+                                    value={newRow.pname}
+                                    required="required"
+                                    onChange={e => { setNewRow({ pname: e.target.value, price: newRow.price }) }} />
+                            </td>
+                            <td>
+                                <Form.Control
+                                    type="number"
+                                    name="price"
+                                    id="price"
+                                    value={newRow.price}
+                                    required="required"
+                                    onChange={e => { setNewRow({ pname: newRow.pname, price: e.target.value }) }} />
+                            </td>
+                        </tr>
+                    </tbody>
+                </Table>
+                <Row>
+                    <Col>
+                        <button onClick={addNewRow}>Add Name</button>
+                    </Col>
+                    <Col>
+                        <button onClick={removeRow}>Remove Name</button>
+                    </Col>
+                </Row>
+            </Container>
+            <Container>
+                <Table id="fees">
+                    <thead>
+                        <tr>
+                            <th>Tax</th>
+                            <th>Service Fee</th>
+                            <th>Delivery Fee</th>
+                            <th>Tip</th>
 
-            <table id="fees">
-                <thead>
-                    <tr>
-                        <th>Tax</th>
-                        <th>Service Fee</th>
-                        <th>Delivery Fee</th>
-                        <th>Tip</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <Form.Control type="number"
+                                    value={tax}
+                                    required="required"
+                                    onChange={e => setTax(parseFloat(e.target.value))} />
+                            </td>
+                            <td>
+                                <Form.Control type="number"
+                                    value={serviceFee}
+                                    required="required"
+                                    onChange={e => setServiceFee(parseFloat(e.target.value))} />
+                            </td>
+                            <td>
+                                <Form.Control type="number"
+                                    value={deliveryFee}
+                                    required="required"
+                                    onChange={e => setDeliveryFee(parseFloat(e.target.value))} />
+                            </td>
+                            <td>
+                                <Form.Control type="number"
+                                    value={tip}
+                                    required="required"
+                                    onChange={e => setTip(parseFloat(e.target.value))} />
+                            </td>
+                        </tr>
+                    </tbody>
+                </Table>
+            </Container>
 
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <input type="number"
-                                value={tax}
-                                required="required"
-                                onChange={e => setTax(parseFloat(e.target.value))} />
-                        </td>
-                        <td>
-                            <input type="number"
-                                value={serviceFee}
-                                required="required"
-                                onChange={e => setServiceFee(parseFloat(e.target.value))} />
-                        </td>
-                        <td>
-                            <input type="number"
-                                value={deliveryFee}
-                                required="required"
-                                onChange={e => setDeliveryFee(parseFloat(e.target.value))} />
-                        </td>
-                        <td>
-                            <input type="number"
-                                value={tip}
-                                required="required"
-                                onChange={e => setTip(parseFloat(e.target.value))} />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <button>Calculate Total</button>
-                <RenderTotal />
+            {/* <button>Calculate Total</button> */}
+            <RenderTotal />
+            <button onClick={() => window.location.reload(false)}>Clear</button>
         </div >
 
     )
