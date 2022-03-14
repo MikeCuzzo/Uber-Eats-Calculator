@@ -4,7 +4,7 @@ import { Table, Container, Form, Row, Col, Input, InputGroup } from 'react-boots
 
 export default function Calculator() {
     const [rows, setRows] = useState([]);
-    const [newRow, setNewRow] = useState({ pname: "", price: 0 });
+    const [newRow, setNewRow] = useState({ pname: "", item: "", price: 0 });
     const [tax, setTax] = useState(0);
     const [serviceFee, setServiceFee] = useState(0);
     const [deliveryFee, setDeliveryFee] = useState(0);
@@ -13,20 +13,13 @@ export default function Calculator() {
     const addNewRow = (e) => {
         e.preventDefault();
 
-        const nRow = { pname: newRow.pname, price: newRow.price };
+        const nRow = { pname: newRow.pname, item: newRow.item, price: newRow.price };
         setRows([...rows, nRow]);
-        setNewRow({ pname: "", price: 0 });
+        setNewRow({ pname: "", item: "", price: 0 });
     }
 
     const removeRow = () => {
         setRows(rows.slice(0, -1));
-    }
-
-    const editRow = (newName, newPrice, index) => {
-        let newEl = { pname: newName, price: newPrice };
-        let redidRows = rows;
-        redidRows.splice(index, 1, newEl)
-        setRows(redidRows)
     }
 
     function RenderTotal() {
@@ -62,6 +55,7 @@ export default function Calculator() {
                     <thead>
                         <tr>
                             <th>Name</th>
+                            <th>Item</th>
                             <th>Price</th>
                         </tr>
                     </thead>
@@ -69,22 +63,11 @@ export default function Calculator() {
                         {rows?.map(row => {
                             return (<tr>
                                 <td>
-                                    <Form.Control
-                                        type="text"
-                                        name="name"
-                                        id="name"
-                                        value={row.pname}
-                                        required="required"
-                                        onChange={(e) => { console.log(e.target.value); editRow(e.target.value, row.price, rows.indexOf(row)) }} />
+                                    <p>{row.pname}</p>
                                 </td>
+                                <td>{row.item}</td>
                                 <td>
-                                    <Form.Control
-                                        type="number"
-                                        name="price"
-                                        id="price"
-                                        value={row.price}
-                                        required="required"
-                                        onChange={(e) => { editRow(row.name, e.target.value, rows.indexOf(row)) }} />
+                                    <p>{row.price}</p>
                                 </td>
                             </tr>)
                         })}
@@ -96,7 +79,16 @@ export default function Calculator() {
                                     id="name"
                                     value={newRow.pname}
                                     required="required"
-                                    onChange={e => { setNewRow({ pname: e.target.value, price: newRow.price }) }} />
+                                    onChange={e => { setNewRow({ pname: e.target.value, item: newRow.item, price: newRow.price }) }} />
+                            </td>
+                            <td>
+                                <Form.Control
+                                    type="text"
+                                    name="item"
+                                    id="item"
+                                    value={newRow.item}
+                                    required="required"
+                                    onChange={e => { setNewRow({ pname: newRow.pname, item: e.target.value, price: newRow.price }) }} />
                             </td>
                             <td>
                                 <Form.Control
@@ -105,7 +97,7 @@ export default function Calculator() {
                                     id="price"
                                     value={newRow.price}
                                     required="required"
-                                    onChange={e => { setNewRow({ pname: newRow.pname, price: e.target.value }) }} />
+                                    onChange={e => { setNewRow({ pname: newRow.pname, item: newRow.item, price: e.target.value }) }} />
                             </td>
                         </tr>
                     </tbody>
